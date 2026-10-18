@@ -167,7 +167,7 @@ document.getElementById('tot').innerHTML=`<b>Total driving:</b> ${main.reduce((a
 
 // photo viewer
 const $=id=>document.getElementById(id);
-let cur=0,pi=0,lastMain=0;
+let cur=0,pi=0,lastMain=0,moreOpen=true;
 function showPhoto(j){
   const s=STOPS[cur],ps=PH[s.key]||[];if(!ps.length)return;
   pi=(j+ps.length)%ps.length;const p=ps[pi];
@@ -181,8 +181,10 @@ function go(i,fly=true,atEnd=false){
   cur=i;const s=STOPS[cur];if(cur<MAIN)lastMain=cur;
   $('badge').textContent=s.n;$('badge').style.background=s.color;
   $('title').textContent=s.name;$('when').textContent=s.time;
-  const more=s.more?`<details id="more"><summary>Click for more: foliage, photos &amp; fun</summary><dl>${Object.entries(s.more).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></details>`:'';
+  const more=s.more?`<details id="more"${moreOpen?' open':''}><summary>Foliage, photos &amp; fun</summary><dl>${Object.entries(s.more).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl></details>`:'';
   $('note').innerHTML=`${s.note} <a href="${s.url}" target="_blank">Link ↗</a>${more}<div class="cr" id="credit"></div><div class="keys">Swipe or tap ‹ › (or <kbd>←</kbd><kbd>→</kbd>) for photos, then the next stop · <kbd>Esc</kbd> whole trip</div>`;
+  // the panel starts open; if the viewer collapses it, it stays collapsed on the next stops
+  if($('more'))$('more').ontoggle=e=>{moreOpen=e.target.open;};
   $('thumbs').innerHTML='';
   (PH[s.key]||[]).forEach((p,k)=>{const t=document.createElement('img');t.src=p.url;t.alt=p.caption;t.loading='lazy';t.onclick=()=>showPhoto(k);$('thumbs').appendChild(t);});
   showPhoto(atEnd?(PH[s.key]||[1]).length-1:0);
